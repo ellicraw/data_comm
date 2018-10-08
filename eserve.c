@@ -1,46 +1,39 @@
 #include <stdio.h> 
 #include <stdlib.h>
+
 #include <sys/types.h>
 #include <sys/socket.h>
+
 #include <netinet/in.h>
-#include <errno.h>
+#include <unistd.h>
 
+//server
 int main() {
-    int socket;
-    struct sockaddr_in server, client;
-    int len;
-    char mesg[] = "Hello world";
-    int sent;
+    
+    char server_message[256] = "You have reached the server!";
 
-    if((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-        perror("socket: ");
-        exit(-1);
-    }
+    // create a socket
+    int server_socket;
+    server_socket = socket(AF_INET, SOCK_STREAM, 0);
 
-    server.sin_family = AF_INET;
-    server.sin_port = htons(10000);
-    server.sin_addr.s_addr = INADDR_ANY;
-    bzero(&server.sin_zero, 8)
+    // specify an address for the socket
+    struct sockaddr_in server_address;
+    server_address.sin_family = AF_INET;
+    server_address.sin_port = htons(9002);
+    server_address.sin_addr.s_addr = INADDR_ANY;
 
-    len = sizeof(struct sockaddr_in);
+    // bind the socket to our specified IP and port
+    bind(server_socket, (struct sockaddr*) &server_address, sizeof(server_address));
 
-    if((bind(sock, (struct sockaddr *) &server, len)) == -1) {
-        perror("bind");
-        exit(-1);
-    }
+    listen(server_socket, 5);
 
-    if((listen(sock, 5)) == -1) {
-        perror("listen");
-        exit(-1);
-    }
+    int client_socket;
+    client_socket = accept(server_socket, NULL, NULL);
 
-    while(1) {
-        if((cli = accept(sock, (struct sockaddr *)&client, &len)) == -1) {
-            perror("accept");
-            exit(-1);
-        }
-        sent = send(cli, mesg, strlen(mesg), 0);
-        printf("Sent %d bytes to clinent: %s\n", sent, inet_ntoa(client.sin_addr;))
-        close(cli);
-    }
+    // send the message
+    send(client_socket, server_message, sizeof(server_message), 0);
+
+    // close the socket
+    close(server_socket);
+    return 0;
 }
