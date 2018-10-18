@@ -7,20 +7,21 @@
 #include <netinet/in.h>
 #include <ctype.h>
 
-
+// incase of error
 void error(const char *msg)
 {
     perror(msg);
     exit(1);
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char *argv[]) // parameters for port number and file name
 {
      int sockfd, newsockfd, portno;
      socklen_t clilen;
      char buffer[512];
      struct sockaddr_in serv_addr, cli_addr;
      int n;
+     // make sure port number is provided
      if (argc < 2) {
          fprintf(stderr,"ERROR, no port provided\n");
          exit(1);
